@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BotBuilders AI Quiz — Matt Leitz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FFFFFF;
+  --surface:#F4F7FB;
+  --card:#FFFFFF;
+  --navy:#0D1F3C;
+  --navy2:#1A3560;
+  --accent:#1E6FFF;
+  --accent-light:#EEF4FF;
+  --gold:#F59E0B;
+  --muted:#64748B;
+  --border:#E2E8F0;
+  --green:#16A34A;
+  --green-bg:#F0FDF4;
+  --green-border:#BBF7D0;
+  --text:#0D1F3C;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+#app{max-width:640px;margin:0 auto;padding:0 1rem 5rem}
+.screen{display:none}
+.screen.active{display:block}
+
+/* NAV */
+.topnav{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 0;border-bottom:1px solid var(--border);margin-bottom:2.5rem}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-icon{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:18px;height:18px;fill:white}
+.logo-text{font-weight:800;font-size:1.05rem;color:var(--navy)}
+.logo-text span{color:var(--accent)}
+.nav-right{text-align:right}
+.nav-cred{font-size:0.7rem;color:var(--muted);line-height:1.5}
+.nav-cred strong{color:var(--navy);display:block;font-weight:700;font-size:0.72rem}
+
+/* TRUST BAR */
+.trust-bar{display:flex;align-items:center;justify-content:center;gap:1.5rem;background:var(--surface);border-radius:8px;padding:0.75rem 1rem;margin-bottom:2rem;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:6px;font-size:0.72rem;font-weight:600;color:var(--muted)}
+.trust-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
+
+/* HERO */
+.hero-label{display:inline-flex;align-items:center;gap:6px;background:var(--accent-light);color:var(--accent);font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:1.25rem}
+.hero h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:800;line-height:1.1;margin-bottom:1rem;color:var(--navy);letter-spacing:-0.02em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{font-size:1rem;color:var(--muted);line-height:1.75;max-width:500px;margin-bottom:2rem;font-weight:400}
+
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:2rem}
+.hero-stat{background:var(--bg);padding:1rem 0.5rem;text-align:center}
+.hero-stat strong{display:block;font-size:1.3rem;font-weight:800;color:var(--navy)}
+.hero-stat span{font-size:0.68rem;color:var(--muted);margin-top:2px;display:block;font-weight:500}
+
+.btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--accent);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1rem;padding:15px 32px;border:none;border-radius:8px;cursor:pointer;transition:all 0.2s;width:100%;letter-spacing:-0.01em}
+.btn-primary:hover{background:#1558D6;transform:translateY(-1px);box-shadow:0 8px 24px rgba(30,111,255,0.3)}
+.btn-primary svg{width:18px;height:18px;flex-shrink:0}
+.btn-sub{text-align:center;font-size:0.75rem;color:var(--muted);margin-top:0.6rem}
+
+/* MATT CARD */
+.matt-card{margin-top:2rem;background:var(--navy);color:white;border-radius:12px;padding:1.5rem;display:flex;align-items:flex-start;gap:1.1rem}
+.matt-avatar{width:52px;height:52px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;color:white;flex-shrink:0;border:2px solid rgba(255,255,255,0.2)}
+.matt-body{}
+.matt-quote{font-size:0.87rem;line-height:1.7;color:rgba(255,255,255,0.85);margin-bottom:0.6rem;font-weight:400}
+.matt-name{font-weight:700;font-size:0.78rem;color:var(--gold)}
+.matt-creds{display:flex;gap:6px;flex-wrap:wrap;margin-top:0.5rem}
+.cred-pill{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:2px 10px;font-size:0.65rem;color:rgba(255,255,255,0.8);font-weight:600}
+
+/* QUIZ */
+.quiz-header{margin-bottom:2rem}
+.progress-wrap{height:5px;background:var(--surface);border-radius:99px;margin-bottom:0.75rem}
+.progress-bar{height:100%;background:var(--accent);border-radius:99px;transition:width 0.4s ease}
+.progress-label{font-size:0.75rem;color:var(--muted);display:flex;justify-content:space-between;font-weight:500}
+.q-section-label{display:inline-flex;align-items:center;gap:6px;background:var(--accent-light);color:var(--accent);font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-bottom:0.75rem}
+.question-text{font-size:1.2rem;font-weight:700;line-height:1.35;margin-bottom:1.5rem;color:var(--navy);letter-spacing:-0.01em}
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:2rem}
+.option{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.15s;font-size:0.93rem;font-weight:500;color:var(--text)}
+.option:hover{border-color:var(--accent);background:var(--accent-light)}
+.option.selected{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}
+.option-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.option.selected .option-dot{background:var(--accent);border-color:var(--accent)}
+.option.selected .option-dot::after{content:'';width:5px;height:5px;background:white;border-radius:50%;display:block}
+.nav-row{display:flex;justify-content:space-between;align-items:center}
+.btn-back{background:none;border:1.5px solid var(--border);color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;font-weight:600;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all 0.15s}
+.btn-back:hover{border-color:var(--navy);color:var(--navy)}
+.btn-next{background:var(--accent);color:white;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.9rem;padding:11px 28px;border:none;border-radius:8px;cursor:pointer;transition:all 0.15s}
+.btn-next:hover{background:#1558D6}
+.btn-next:disabled{opacity:0.3;cursor:not-allowed}
+
+/* LOADING */
+.loading-screen{text-align:center;padding:5rem 0}
+.loading-orb{width:72px;height:72px;border-radius:50%;background:var(--accent);margin:0 auto 2rem;position:relative;overflow:hidden;box-shadow:0 0 32px rgba(30,111,255,0.3)}
+.loading-orb::after{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,0.5) 50%,transparent 70%);animation:shimmer 1.2s infinite}
+@keyframes shimmer{0%{transform:translateX(-100%) rotate(45deg)}100%{transform:translateX(200%) rotate(45deg)}}
+.loading-screen h2{font-size:1.4rem;font-weight:800;margin-bottom:0.4rem;color:var(--navy)}
+.loading-screen p{color:var(--muted);font-size:0.88rem}
+.loading-steps{margin:2rem auto 0;display:flex;flex-direction:column;gap:10px;max-width:280px;text-align:left}
+.loading-step{display:flex;align-items:center;gap:10px;font-size:0.83rem;color:var(--muted);opacity:0;transition:opacity 0.4s;font-weight:500}
+.loading-step.visible{opacity:1;color:var(--accent)}
+.loading-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0}
+
+/* RESULTS */
+.result-hero{background:var(--navy);color:white;border-radius:12px;padding:1.75rem;margin-bottom:1.25rem;position:relative;overflow:hidden}
+.result-hero::before{content:'';position:absolute;bottom:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:var(--accent);opacity:0.15}
+.result-profile{font-size:0.67rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:0.4rem}
+.result-title{font-size:1.5rem;font-weight:800;margin-bottom:0.75rem;line-height:1.15;letter-spacing:-0.02em}
+.result-score-row{display:flex;align-items:flex-start;gap:1rem}
+.score-circle{width:60px;height:60px;border-radius:50%;border:2.5px solid var(--gold);display:flex;align-items:center;justify-content:center;flex-direction:column;flex-shrink:0}
+.score-num{font-weight:800;font-size:1.15rem;color:var(--gold)}
+.score-label{font-size:0.48rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.1em}
+.result-desc{font-size:0.87rem;line-height:1.7;color:rgba(255,255,255,0.8);font-weight:400}
+
+/* GAPS */
+.gaps-section{background:var(--surface);border-radius:10px;padding:1.25rem;margin-bottom:1.25rem}
+.gaps-section h3{font-size:0.88rem;font-weight:700;margin-bottom:1rem;color:var(--navy)}
+.gap-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.gap-item:last-child{border-bottom:none;padding-bottom:0}
+.gap-icon{width:30px;height:30px;border-radius:6px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+.gap-text strong{display:block;font-size:0.85rem;font-weight:700;margin-bottom:1px;color:var(--navy)}
+.gap-text span{font-size:0.78rem;color:var(--muted)}
+
+/* PRICING */
+.pricing-intro{text-align:center;margin-bottom:1.25rem;padding-top:0.5rem}
+.pricing-intro h2{font-size:1.35rem;font-weight:800;margin-bottom:0.4rem;color:var(--navy);letter-spacing:-0.02em}
+.pricing-intro p{color:var(--muted);font-size:0.85rem}
+.plans{display:flex;flex-direction:column;gap:10px;margin-bottom:1.25rem}
+.plan-card{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:1.15rem;position:relative;transition:border-color 0.15s}
+.plan-card.recommended{border-color:var(--accent);box-shadow:0 0 0 4px rgba(30,111,255,0.07)}
+.plan-badge{position:absolute;top:-10px;left:16px;background:var(--accent);color:white;font-size:0.63rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px}
+.plan-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.6rem}
+.plan-name{font-weight:800;font-size:0.95rem;color:var(--navy)}
+.plan-tag{font-size:0.7rem;color:var(--muted);margin-top:2px;font-weight:500}
+.plan-price-block{text-align:right}
+.plan-per-day{font-weight:800;font-size:1.3rem;color:var(--accent);line-height:1}
+.plan-intro{font-size:0.72rem;color:var(--muted);margin-top:2px}
+.plan-renews{font-size:0.62rem;color:var(--muted);margin-top:2px;opacity:0.75}
+.plan-features{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:0.9rem}
+.plan-feat{font-size:0.7rem;color:var(--muted);background:var(--surface);padding:3px 9px;border-radius:20px;font-weight:500}
+.plan-cta{display:block;width:100%;background:var(--accent);color:white;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.88rem;padding:12px;border:none;border-radius:7px;cursor:pointer;transition:all 0.15s;text-align:center;letter-spacing:-0.01em}
+.plan-cta:hover{background:#1558D6}
+.plan-cta.secondary{background:var(--surface);color:var(--navy);border:1.5px solid var(--border)}
+.plan-cta.secondary:hover{border-color:var(--accent);color:var(--accent)}
+
+/* GUARANTEE */
+.guarantee{display:flex;align-items:flex-start;gap:12px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:10px;padding:1rem 1.15rem;margin-bottom:1.5rem}
+.guarantee-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.guarantee-text{font-size:0.82rem;color:#15803D;line-height:1.55}
+.guarantee-text strong{display:block;margin-bottom:2px;font-size:0.88rem;font-weight:700}
+
+/* REVIEWS */
+.reviews-section{margin-bottom:1.5rem}
+.reviews-section h3{font-size:1rem;font-weight:800;margin-bottom:1rem;color:var(--navy);letter-spacing:-0.01em}
+.reviews{display:flex;flex-direction:column;gap:10px}
+.review-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.15rem}
+.review-stars{color:var(--gold);font-size:0.8rem;margin-bottom:5px;letter-spacing:1px}
+.review-text{font-size:0.85rem;line-height:1.65;margin-bottom:8px;color:var(--text)}
+.review-author{display:flex;align-items:center;gap:8px}
+.review-avatar{width:26px;height:26px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:white;flex-shrink:0}
+.review-name{font-size:0.76rem;font-weight:700;color:var(--navy)}
+.review-meta{font-size:0.7rem;color:var(--muted)}
+
+.divider{margin:1.25rem 0;border:none;border-top:1px solid var(--border)}
+.funnel-footer{text-align:center;padding-top:1.5rem;border-top:1px solid var(--border);font-size:0.73rem;color:var(--muted);line-height:1.7}
+.funnel-footer a{color:var(--accent);text-decoration:none}
+
+/* VALUE STACK */
+.value-stack{background:linear-gradient(180deg,var(--accent-light) 0%,#FFFFFF 100%);border:1.5px solid var(--accent);border-radius:14px;padding:1.5rem 1.25rem;margin-bottom:1.75rem;box-shadow:0 4px 20px rgba(30,111,255,0.08)}
+.value-stack-header{text-align:center;margin-bottom:1.25rem}
+.value-stack-badge{display:inline-block;background:var(--accent);color:#fff;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:0.75rem}
+.value-stack-header h3{font-size:1.1rem;font-weight:700;color:var(--navy);line-height:1.35;letter-spacing:-0.01em}
+.value-stack-header h3 strong{color:var(--accent)}
+.value-strike{text-decoration:line-through;color:var(--muted);font-weight:600}
+.value-courses{display:flex;flex-direction:column;gap:1rem;margin-bottom:1.25rem}
+.value-course{background:#fff;border:1px solid var(--border);border-radius:10px;padding:1rem}
+.value-course-head{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)}
+.value-course-icon{font-size:1.5rem;flex-shrink:0}
+.value-course-name{font-weight:700;font-size:0.95rem;color:var(--navy);letter-spacing:-0.01em}
+.value-course-price{font-size:0.72rem;color:var(--green);font-weight:700;margin-top:2px}
+.value-course-list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr;gap:0.4rem}
+.value-course-list li{font-size:0.8rem;color:var(--text);line-height:1.4;padding-left:1.1rem;position:relative;font-weight:500}
+.value-course-list li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+.value-stack-footer{display:flex;align-items:center;justify-content:center;gap:0.6rem;flex-wrap:wrap;background:var(--navy);color:#fff;padding:0.85rem 1rem;border-radius:8px;font-weight:700}
+.value-total-label{font-size:0.78rem;color:rgba(255,255,255,0.7);font-weight:600}
+.value-total-strike{text-decoration:line-through;color:rgba(255,255,255,0.5);font-size:0.95rem}
+.value-total-arrow{color:var(--gold);font-weight:800}
+.value-total-price{color:var(--gold);font-size:0.95rem;font-weight:800}
+@media(min-width:600px){.value-course-list{grid-template-columns:1fr 1fr}}
+
+/* HIGHLIGHT BUNDLE FEATURE IN PLAN CARDS */
+.plan-feat.bundle-feat{background:linear-gradient(90deg,#FEF3C7 0%,#FFFBEB 100%);border:1px solid #FCD34D;color:var(--navy);font-weight:700;padding:5px 10px;font-size:0.72rem;width:100%;text-align:center;margin-bottom:4px}
+
+/* EMOTIONAL HOOK ON RESULTS */
+.emotional-hook{background:var(--surface);border-left:3px solid var(--accent);padding:1rem 1.15rem;margin:1rem 0 1.5rem;border-radius:0 8px 8px 0;font-size:0.9rem;line-height:1.6;color:var(--text);font-style:italic}
+.emotional-hook strong{color:var(--navy);font-style:normal}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HERO -->
+  <div id="screen-hero" class="screen active">
+    <nav class="topnav">
+      <div class="logo">
+        <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div>
+        <div class="logo-text">Bot<span>Builders</span></div>
+      </div>
+      <div class="nav-right">
+        <div class="nav-cred"><strong>Matt Leitz</strong>CEO · 8x Inc. 5000 Winner</div>
+      </div>
+    </nav>
+
+    <div class="trust-bar">
+      <div class="trust-item"><div class="trust-dot"></div>47,000+ Businesses Assessed</div>
+      <div class="trust-item"><div class="trust-dot"></div>8x Inc. 5000 Honoree</div>
+      <div class="trust-item"><div class="trust-dot"></div>100,000+ Webclass Attendees</div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-label">Free 3-Min AI Assessment</div>
+      <h1>What's Your AI <em>Blind Spot?</em></h1>
+      <p>Take Matt Leitz's 3-minute quiz and get your personalized AI roadmap — the exact moves to make in the next 90 days to stay ahead of competitors already using AI.</p>
+
+      <div class="hero-stats">
+        <div class="hero-stat"><strong>3 min</strong><span>to complete</span></div>
+        <div class="hero-stat"><strong>22</strong><span>questions</span></div>
+        <div class="hero-stat"><strong>5</strong><span>profiles</span></div>
+        <div class="hero-stat"><strong>Free</strong><span>results</span></div>
+      </div>
+
+      <button class="btn-primary" onclick="startQuiz()">
+        Take the Free Quiz
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <div class="btn-sub">No email required · Instant results</div>
+
+      <div class="matt-card">
+        <div class="matt-avatar">ML</div>
+        <div class="matt-body">
+          <div class="matt-quote">"Most business owners don't realize they're already 18 months behind. This quiz shows you the gap — and exactly how to close it fast."</div>
+          <div class="matt-name">Matt Leitz — CEO, BotBuilders</div>
+          <div class="matt-creds">
+            <span class="cred-pill">BotBuilders CEO</span>
+            <span class="cred-pill">8x Inc. 5000 Winner</span>
+            <span class="cred-pill">AI Business Expert</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <nav class="topnav">
+      <div class="logo">
+        <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div>
+        <div class="logo-text">Bot<span>Builders</span></div>
+      </div>
+      <div class="nav-cred"><strong>Matt Leitz</strong>AI Expert</div>
+    </nav>
+    <div class="quiz-header">
+      <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:3%"></div></div>
+      <div class="progress-label">
+        <span id="progress-section">Getting started</span>
+        <span id="progress-count">1 / 22</span>
+      </div>
+    </div>
+    <div class="q-section-label" id="q-section">About You</div>
+    <div class="question-text" id="q-text">Loading...</div>
+    <div class="options" id="q-options"></div>
+    <div class="nav-row">
+      <button class="btn-back" id="btn-back" onclick="prevQuestion()">← Back</button>
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()" disabled>Continue →</button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="screen-loading" class="screen loading-screen">
+    <div class="loading-orb"></div>
+    <h2>Analyzing Your Results</h2>
+    <p>Building your personalized AI roadmap...</p>
+    <div class="loading-steps">
+      <div class="loading-step" id="ls1"><div class="loading-dot"></div>Scoring your AI readiness</div>
+      <div class="loading-step" id="ls2"><div class="loading-dot"></div>Identifying your biggest gaps</div>
+      <div class="loading-step" id="ls3"><div class="loading-dot"></div>Matching your business profile</div>
+      <div class="loading-step" id="ls4"><div class="loading-dot"></div>Preparing your personalized plan</div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="screen-results" class="screen">
+    <nav class="topnav">
+      <div class="logo">
+        <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div>
+        <div class="logo-text">Bot<span>Builders</span></div>
+      </div>
+      <div class="nav-cred"><strong>Matt Leitz</strong>AI Expert</div>
+    </nav>
+
+    <div class="result-hero">
+      <div class="result-profile" id="result-profile">Your AI Profile</div>
+      <div class="result-title" id="result-title">Loading...</div>
+      <div class="result-score-row">
+        <div class="score-circle"><span class="score-num" id="score-num">0</span><span class="score-label">Score</span></div>
+        <div class="result-desc" id="result-desc">...</div>
+      </div>
+    </div>
+
+    <div class="gaps-section" id="result-gaps">
+      <h3>Your Top 3 AI Gaps to Fix:</h3>
+    </div>
+
+    <div class="emotional-hook" id="emotional-hook"></div>
+
+    <hr class="divider">
+
+    <div class="pricing-intro">
+      <h2>Your BotBuilders Action Plan</h2>
+      <p>Every plan unlocks <strong>$1,994 in flagship courses</strong> plus your full BotBuilders membership. Pick the pace that fits — starting at less than a coffee a day:</p>
+    </div>
+
+    <div class="value-stack">
+      <div class="value-stack-header">
+        <span class="value-stack-badge">Included in every plan</span>
+        <h3>You're unlocking <strong>both flagship courses</strong> — a <span class="value-strike">$1,994</span> value</h3>
+      </div>
+      <div class="value-courses">
+        <div class="value-course">
+          <div class="value-course-head">
+            <span class="value-course-icon">🚀</span>
+            <div>
+              <div class="value-course-name">AI Mastery for Business Owners</div>
+              <div class="value-course-price">$997 value</div>
+            </div>
+          </div>
+          <ul class="value-course-list">
+            <li>Save hours every day using AI</li>
+            <li>Turn any LLM into a profit assistant</li>
+            <li>Launch autonomous AI agents that work for you</li>
+            <li>Create high-converting AI videos, fast</li>
+            <li>Build AI voicebots and chatbots that sell</li>
+            <li>Simplify your business with AI systems</li>
+            <li>Discover real ways to monetize AI</li>
+            <li>Go from AI confusion to execution</li>
+          </ul>
+        </div>
+        <div class="value-course">
+          <div class="value-course-head">
+            <span class="value-course-icon">💼</span>
+            <div>
+              <div class="value-course-name">Build Your AI Services Business</div>
+              <div class="value-course-price">$997 value</div>
+            </div>
+          </div>
+          <ul class="value-course-list">
+            <li>Launch a real AI services business</li>
+            <li>Package and sell AI solutions confidently</li>
+            <li>Use proven offers clients already want</li>
+            <li>Close deals with ready-made sales tools</li>
+            <li>Save time with done-for-you legal docs</li>
+            <li>Deliver bots and AI clients love</li>
+            <li>Intelligently price, scope, and scale</li>
+            <li>Go from builder to business owner</li>
+          </ul>
+        </div>
+      </div>
+      <div class="value-stack-footer">
+        <span class="value-total-label">Total course value</span>
+        <span class="value-total-strike">$1,994</span>
+        <span class="value-total-arrow">→</span>
+        <span class="value-total-price">Yours from $4.99</span>
+      </div>
+    </div>
+
+    <div class="plans" id="plans-container"></div>
+
+    <div class="guarantee">
+      <div class="guarantee-icon">🛡️</div>
+      <div class="guarantee-text">
+        <strong>30-Day Money-Back Guarantee</strong>
+        Go through the BotBuilders plan, do the work, and if you don't see real results — Matt will refund every penny. No questions, no hassle.
+      </div>
+    </div>
+
+    <div class="reviews-section">
+      <h3>What BotBuilders Members Are Saying</h3>
+      <div class="reviews" id="reviews-container"></div>
+    </div>
+
+    <div class="funnel-footer">
+      &copy; 2025 BotBuilders · Matt Leitz · 8x Inc. 5000 Winner<br>
+      Questions? <a href="mailto:support@botbuilders.com">support@botbuilders.com</a>
+    </div>
+  </div>
+
+</div>
+<script>
+const questions=[
+  // OPENING HOOK — identity + commitment
+  {section:"Where You Are",text:"If AI could solve ONE thing in your business tomorrow, what would it be?",options:["Get me more leads / clients","Give me back 10+ hours a week","Break my revenue plateau","Help me stop falling behind"],scores:[3,3,3,3]},
+  {section:"Where You Are",text:"Be honest — how would you describe your AI confidence right now?",options:["I'm faking it (and feeling it)","Curious but lost","Capable but inconsistent","I'm running circles around competitors"],scores:[0,1,3,5]},
+  {section:"Where You Are",text:"How often do you currently use AI in your business?",options:["Never","Once or twice a month","A few times a week","Daily"],scores:[0,1,3,5]},
+  {section:"Where You Are",text:"Do you have an AI strategy for your business?",options:["No, and I don't know where to start","I've thought about it, nothing formal","I have a loose plan","Yes, documented and in use"],scores:[0,1,2,5]},
+  {section:"Where You Are",text:"Have you tried AI tools and then abandoned them?",options:["Never tried","Tried and quit — too confusing","Tried and quit — not worth it","Still using them"],scores:[0,1,1,4]},
+
+  // AI AWARENESS — pain + competitive gap
+  {section:"The Gap",text:"How much time per week do you spend on tasks AI could automate?",options:["Less than 1 hour","1–5 hours","5–15 hours","15+ hours"],scores:[0,1,3,5]},
+  {section:"The Gap",text:"Do you feel competitors are using AI more effectively than you?",options:["Not sure","Probably yes","Definitely yes","No, I'm ahead"],scores:[1,2,3,0]},
+  {section:"The Gap",text:"How confident are you explaining AI to a client or colleague?",options:["Not at all","Somewhat","Fairly confident","Very confident"],scores:[0,1,3,5]},
+  {section:"The Gap",text:"Has AI felt overwhelming or confusing to you?",options:["Very overwhelming","Somewhat","A little","Not at all"],scores:[1,2,3,4]},
+
+  // BUSINESS PAIN — the cost of inaction
+  {section:"What It's Costing You",text:"Is lead generation a consistent struggle?",options:["Always","Often","Sometimes","Rarely"],scores:[3,2,1,0]},
+  {section:"What It's Costing You",text:"Do you find yourself doing tasks below your skill level?",options:["All the time","Often","Occasionally","Never"],scores:[3,2,1,0]},
+  {section:"What It's Costing You",text:"How satisfied are you with your revenue growth?",options:["Very unsatisfied","Unsatisfied","Neutral","Satisfied or very satisfied"],scores:[3,2,1,0]},
+  {section:"What It's Costing You",text:"Do you have solid systems and automation in place?",options:["No, everything is manual","A little, but it's messy","Some systems in place","Yes, well-automated"],scores:[3,2,1,0]},
+  {section:"What It's Costing You",text:"Do you feel stuck at your current revenue ceiling?",options:["Completely stuck","Somewhat stuck","Slowly growing","Growing fast"],scores:[3,2,1,0]},
+  {section:"What It's Costing You",text:"What would an extra 10 hours a week mean for your business?",options:["Everything — total game changer","A lot — I'd grow much faster","Helpful, not critical","I already have plenty of time"],scores:[3,2,1,0]},
+
+  // READINESS — buying signals
+  {section:"Are You Ready?",text:"How committed are you to learning and applying new tools?",options:["Not very — I prefer the old ways","Somewhat, if it's not too hard","Pretty committed","Extremely committed"],scores:[0,1,3,5]},
+  {section:"Are You Ready?",text:"Have you invested in business education or coaching before?",options:["Never","Once or twice","Several times","I regularly invest in myself"],scores:[1,2,3,5]},
+  {section:"Are You Ready?",text:"How quickly do you typically implement new strategies?",options:["I rarely implement","It takes months","A few weeks","Right away"],scores:[0,1,3,5]},
+  {section:"Are You Ready?",text:"Are you ready to make a change in how you use AI right now?",options:["Not yet","Maybe soon","Yes, I think so","Absolutely — let's go"],scores:[0,1,3,5]},
+  {section:"Are You Ready?",text:"On a scale of 1–4, how urgent is solving your AI gap?",options:["1 — Not urgent at all","2 — It can wait","3 — Pretty urgent","4 — Critical right now"],scores:[0,1,3,5]},
+
+  // QUICK CONTEXT (moved to end — low friction now they're invested)
+  {section:"About You",text:"What type of business do you run?",options:["Solopreneur / freelancer","Small business (2–10)","Mid-size company (11–50)","Larger organization (50+)"],scores:[2,3,3,2]},
+  {section:"About You",text:"How many years have you been in business?",options:["Less than 1 year","1–3 years","3–7 years","7+ years"],scores:[2,2,3,3]}
+];
+
+const profiles=[
+  {min:0,max:30,name:"AI Rookie",title:"You're at the Starting Line — Maximum Upside Ahead",
+    desc:"You're early in your AI journey, which means the gap you'll close is the biggest. The 7-Day Kickstart gets you moving with simple, actionable wins from day one.",
+    hook:"<strong>Sound familiar?</strong> You keep hearing about AI everywhere — on podcasts, from your competitors, even from clients. You've meant to figure it out for months but every time you start, it feels like drinking from a firehose. <strong>That's not a you problem — it's a path problem. And it's the most fixable thing on this entire page.</strong>",
+    gaps:[{icon:"🔍",title:"AI Tool Awareness",detail:"You're not yet using tools that could save you 10+ hours every week"},{icon:"⚙️",title:"Business Automation",detail:"Tasks you handle manually today could be delegated to AI right now"},{icon:"📈",title:"Competitive Positioning",detail:"Competitors adopting AI now will be very hard to catch in 12 months"}],
+    recommended:0},
+  {min:31,max:44,name:"AI Curious",title:"You Know AI Matters — You Just Need a System",
+    desc:"You're aware of AI but haven't built it into your business yet. The 4-Week Accelerator gives you Matt's proven framework to go from curious to capable.",
+    hook:"<strong>Sound familiar?</strong> You've downloaded 3 different AI tools this year. You watched the tutorials. You even built a custom GPT once. But it's been months and your business looks exactly the same as before. <strong>That's not a you problem — it's a system problem. Tools without a framework just become more tabs you don't open.</strong>",
+    gaps:[{icon:"🗺️",title:"No AI Roadmap",detail:"You know AI matters but don't have a clear plan to execute on it"},{icon:"🔄",title:"Inconsistent Usage",detail:"Occasional use isn't driving real results — you need a repeatable system"},{icon:"💰",title:"Revenue Left Behind",detail:"AI-forward businesses in your space are pulling ahead every single week"}],
+    recommended:1},
+  {min:45,max:58,name:"AI Stalled",title:"You've Started — But Haven't Broken Through Yet",
+    desc:"You've tried AI but haven't cracked real ROI yet. The 4-Week Accelerator cuts through the noise and shows you exactly what moves the needle.",
+    hook:"<strong>Sound familiar?</strong> You use ChatGPT a few times a week. You've built a workflow or two. But if someone asked you to point to the revenue AI has made for you this year, you'd hesitate. <strong>The gap between using AI and profiting from AI is wider than most people realize — and it's exactly where we've helped 47,000+ businesses break through.</strong>",
+    gaps:[{icon:"🧩",title:"Strategy Missing",detail:"Tools without strategy equals wasted time — you need a framework, not more apps"},{icon:"📊",title:"No Measurable ROI",detail:"You can't yet point to real business impact from your AI use"},{icon:"🚀",title:"Implementation Gap",detail:"The gap between knowing and doing is costing you thousands per month"}],
+    recommended:1},
+  {min:59,max:72,name:"AI Ready",title:"You're Ahead — Now Scale It",
+    desc:"You have real momentum. The 12-Week Transformation builds on what's working and creates AI systems that compound over time.",
+    hook:"<strong>Sound familiar?</strong> You're doing the work. AI is already saving you real time. But you keep hitting a ceiling — there's another level of automation, another set of agents, another way to scale that you can sense but can't quite see yet. <strong>That ceiling isn't your skill. It's the gap between user and architect — and that's exactly what the 12-Week is built to close.</strong>",
+    gaps:[{icon:"⚡",title:"Scaling Ceiling",detail:"You're doing well but AI can multiply your output 3–5x with the right system"},{icon:"🤖",title:"Untapped Automation",detail:"There are advanced AI workflows you haven't explored yet"},{icon:"🏆",title:"Widen the Gap",detail:"Top businesses in your space are building AI moats — now is the time to lead"}],
+    recommended:2},
+  {min:73,max:999,name:"AI Leader",title:"You're Winning — Now Make It Unfair",
+    desc:"You're ahead of 95% of businesses. The 12-Week Transformation helps you build AI infrastructure that makes your competitive lead nearly impossible to close.",
+    hook:"<strong>Sound familiar?</strong> You're not the one falling behind — you're the one your competitors are watching. But being early doesn't guarantee staying ahead. The businesses that will win the next 5 years aren't the ones using AI — they're the ones who built AI infrastructure that compounds. <strong>This is the moment to lock in your lead, not coast on it.</strong>",
+    gaps:[{icon:"🔬",title:"Advanced Systems",detail:"You haven't yet built the AI infrastructure that creates compounding returns"},{icon:"👥",title:"Team Leverage",detail:"Your team likely isn't operating at your level — that's a bottleneck"},{icon:"🌐",title:"Category Authority",detail:"Now is the time to become the recognized AI leader in your market"}],
+    recommended:2}
+];
+
+const plans=[
+  {name:"7-Day AI Kickstart",tag:"Perfect for beginners",perDay:"$0.71/day",intro:"Intro: $4.99",renews:"Renews at $39.99/mo after 7 days",
+    features:["🎁 BOTH flagship courses ($1,994 value)","Start tonight — see results by Sunday","Copy-paste prompts from real businesses","Matt's 7-day framework that 47,000+ owners use","12,000+ AI-implementing business owners in the community"],
+    duration:"7 Days",checkoutUrl:"#checkout-7day"},
+  {name:"4-Week AI Accelerator",tag:"Most popular",perDay:"$0.33/day",intro:"Intro: $9.99",renews:"Renews at $39.99/mo after 4 weeks",
+    features:["🎁 BOTH flagship courses ($1,994 value)","Full 4-week curriculum — 10+ hours back per week by Week 2","The AI tool stack Matt's clients pay $25k+ to learn","Step-by-step implementation checklists (no guesswork)","Weekly live Q&A with Matt — get unstuck the same week","Plug-and-play templates for ads, emails, and offers"],
+    duration:"4 Weeks",checkoutUrl:"#checkout-4week"},
+  {name:"12-Week AI Transformation",tag:"Best value — serious results",perDay:"$0.21/day",intro:"Intro: $18.99",renews:"Renews at $89.99/qtr after 3 months",
+    features:["🎁 BOTH flagship courses ($1,994 value)","The full AI business operating system","Done-with-you implementation — we build alongside you","Advanced AI workflows most owners never see","Priority support — direct answers when you're stuck","Lifetime community access ($1,164/yr value)","Bonus: 1-on-1 AI audit call with Matt's team"],
+    duration:"12 Weeks",checkoutUrl:"#checkout-12week"}
+];
+
+const reviews=[
+  {stars:"★★★★★",text:"Matt's BotBuilders program completely transformed how I run my agency. In the first week I automated 3 processes I'd been doing manually for years. The ROI was immediate.",name:"Jason R.",meta:"Marketing Agency Owner · 4-Week Plan"},
+  {stars:"★★★★★",text:"I was skeptical at first but the 7-day kickstart was so simple and actionable. I went from zero AI knowledge to using it every single day. Best $4.99 I've ever spent.",name:"Sarah K.",meta:"Business Coach · 7-Day Kickstart"},
+  {stars:"★★★★★",text:"The 12-week transformation is the real deal. Everything is practical and immediately usable. I've saved 15+ hours a week and revenue is up 40%.",name:"David M.",meta:"E-commerce Founder · 12-Week Plan"},
+  {stars:"★★★★★",text:"Matt is one of the most knowledgeable AI experts out there, and his 8x Inc. 5000 track record proves he builds real businesses — not just theory.",name:"Amanda T.",meta:"Sales Consultant · 4-Week Plan"},
+  {stars:"★★★★★",text:"Went from being terrified of AI to building my first automated lead generation system in 3 weeks. My competitors have no idea what hit them.",name:"Carlos V.",meta:"Real Estate Professional · 12-Week Plan"}
+];
+
+let currentQ=0,answers=new Array(questions.length).fill(null),totalScore=0,selectedProfile=null;
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0)}
+function startQuiz(){show('screen-quiz');renderQuestion()}
+function renderQuestion(){
+  const q=questions[currentQ];
+  document.getElementById('q-section').textContent=q.section;
+  document.getElementById('q-text').textContent=q.text;
+  document.getElementById('progress-section').textContent=q.section;
+  document.getElementById('progress-count').textContent=(currentQ+1)+' / '+questions.length;
+  document.getElementById('progress-bar').style.width=((currentQ/questions.length)*100)+'%';
+  document.getElementById('btn-back').style.visibility=currentQ===0?'hidden':'visible';
+  const opts=document.getElementById('q-options');
+  opts.innerHTML='';
+  q.options.forEach((opt,i)=>{
+    const div=document.createElement('div');
+    div.className='option'+(answers[currentQ]===i?' selected':'');
+    div.innerHTML='<div class="option-dot"></div><span>'+opt+'</span>';
+    div.onclick=()=>selectOption(i);
+    opts.appendChild(div);
+  });
+  document.getElementById('btn-next').disabled=answers[currentQ]===null;
+}
+function selectOption(i){
+  answers[currentQ]=i;
+  document.querySelectorAll('.option').forEach((el,idx)=>el.classList.toggle('selected',idx===i));
+  document.getElementById('btn-next').disabled=false;
+}
+function nextQuestion(){
+  if(answers[currentQ]===null)return;
+  if(currentQ<questions.length-1){currentQ++;renderQuestion()}else{finishQuiz()}
+}
+function prevQuestion(){if(currentQ>0){currentQ--;renderQuestion()}}
+function finishQuiz(){
+  totalScore=0;
+  questions.forEach((q,i)=>{if(answers[i]!==null)totalScore+=q.scores[answers[i]]});
+  show('screen-loading');
+  ['ls1','ls2','ls3','ls4'].forEach((id,i)=>setTimeout(()=>document.getElementById(id).classList.add('visible'),i*700));
+  setTimeout(showResults,3200);
+}
+function showResults(){
+  selectedProfile=profiles.find(p=>totalScore>=p.min&&totalScore<=p.max)||profiles[profiles.length-1];
+  document.getElementById('result-profile').textContent=selectedProfile.name;
+  document.getElementById('result-title').textContent=selectedProfile.title;
+  document.getElementById('result-desc').textContent=selectedProfile.desc;
+  document.getElementById('score-num').textContent=totalScore;
+  const gapsEl=document.getElementById('result-gaps');
+  gapsEl.innerHTML='<h3>Your Top 3 AI Gaps to Fix:</h3>';
+  selectedProfile.gaps.forEach(g=>{
+    const div=document.createElement('div');
+    div.className='gap-item';
+    div.innerHTML='<div class="gap-icon">'+g.icon+'</div><div class="gap-text"><strong>'+g.title+'</strong><span>'+g.detail+'</span></div>';
+    gapsEl.appendChild(div);
+  });
+  document.getElementById('emotional-hook').innerHTML=selectedProfile.hook||'';
+  const plansEl=document.getElementById('plans-container');
+  plansEl.innerHTML='';
+  plans.forEach((p,i)=>{
+    const isRec=i===selectedProfile.recommended;
+    const div=document.createElement('div');
+    div.className='plan-card'+(isRec?' recommended':'');
+    div.innerHTML=(isRec?'<div class="plan-badge">Recommended for You</div>':'')+
+      '<div class="plan-top"><div><div class="plan-name">'+p.name+'</div><div class="plan-tag">'+p.tag+'</div></div>'+
+      '<div class="plan-price-block"><div class="plan-per-day">'+p.perDay+'</div><div class="plan-intro">'+p.intro+'</div><div class="plan-renews">'+p.renews+'</div></div></div>'+
+      '<div class="plan-features">'+p.features.map((f,idx)=>{
+        const isBundle=idx===0&&f.indexOf('🎁')===0;
+        return isBundle?'<span class="plan-feat bundle-feat">'+f+'</span>':'<span class="plan-feat">✓ '+f+'</span>';
+      }).join('')+'</div>'+
+      '<button class="plan-cta'+(isRec?'':' secondary')+'" onclick="window.location.href=\''+p.checkoutUrl+'\'">Start My '+p.duration+' Plan →</button>';
+    plansEl.appendChild(div);
+  });
+  const revEl=document.getElementById('reviews-container');
+  revEl.innerHTML='';
+  reviews.forEach(r=>{
+    const initials=r.name.split(' ').map(n=>n[0]).join('');
+    const div=document.createElement('div');
+    div.className='review-card';
+    div.innerHTML='<div class="review-stars">'+r.stars+'</div><div class="review-text">"'+r.text+'"</div><div class="review-author"><div class="review-avatar">'+initials+'</div><div><div class="review-name">'+r.name+'</div><div class="review-meta">'+r.meta+'</div></div></div>';
+    revEl.appendChild(div);
+  });
+  show('screen-results');
+}
+</script>
+</body>
+</html>
